@@ -2,9 +2,14 @@ export const txFee = 1000000;
 export const feeErgoTree = "1005040004000e36100204a00b08cd0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ea02d192a39a8cc7a701730073011001020402d19683030193a38cc7b2a57300000193c2b2a57301007473027303830108cdeeac93b1a57304";
 
 export const tokens = {
-    locking: "33ee077854471a04fbef18a5a971b50fb39f52fc6f6b3b8d0682ce2c48f6ebef",
-    staking: "22ee077854471a04fbef18a5a971b50fb39f52fc6f6b3b8d0682ce2c48f6ebef",
-    distribution:"11ee077854471a04fbef18a5a971b50fb39f52fc6f6b3b8d0682ce2c48f6ebef",
-    configNFT: "00ee077854471a04fbef18a5a971b50fb39f52fc6f6b3b8d0682ce2c48f6ebef"
+    locking: "b7b558e83acfec77a94a6174869319b48c8a3e95bdd3115e06927728c72a8f5d",
+    staking: "9ae0839ea09ae08b5935e8ef6ca47a83db18126366deb470682ee1593da3fcb7",
+    distribution: "2be1809d0e914e31f90b86eeb567e286c1a5484de18d10e986f15e16183c0f22",
+    configNFT: "fc3d9aae301593d1d6b61994316b2cc911f6fb75cdb175e1a040126e720341d4"
 }
 
+export const config = {
+    nodeUrl : "http://10.10.9.3:9064/",
+    explorerApi : "http://10.10.9.3:7000/",
+    backEnd : "localhost:9000"
+}

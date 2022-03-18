@@ -1,4 +1,4 @@
-type Register = { [key: string]: string };
+export type Register = { [key: string]: string };
 
 export type Token = {
     tokenId: string;
@@ -52,4 +52,34 @@ export type Tx = {
     inputs: Box[],
     dataInputs: DataInput[],
     outputs: BoxCandidate[],
+};
+
+// export type ExplorerToken = {
+//     tokenId: string,
+//     index: number,
+//     amount: number,
+//     name: string,
+//     decimals: number,
+//     type: string
+// }
+
+export type ExplorerRegister = {
+    serializedValue: string,
+    sigmaType: string,
+    renderedValue: string
+}
+
+export type ExplorerOutputBox = {
+    boxId: string;
+    transactionId: string;
+    blockId: string,
+    value: number;
+    index: number;
+    creationHeight: number;
+    ergoTree: string;
+    address: string;
+    assets: Token[];
+    additionalRegisters: {[key: string]: ExplorerRegister};
+    spentTransactionId: string;
+    mainChain: boolean;
 };
