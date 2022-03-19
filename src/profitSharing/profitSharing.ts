@@ -1,9 +1,10 @@
-import {getWalletBoxes, getWalletAddress, sendTx} from "./walletUtils";
-import {ApiNetwork} from "./Network";
-import {ConfigBox} from "./models";
-import {tokens} from "./constants";
-import {Boxes} from "./Boxes";
-import {BoxCandidate, Box} from "./types";
+import {getWalletBoxes, getWalletAddress, sendTx} from "../network/walletUtils";
+import {ApiNetwork} from "../network/Network";
+import {ConfigBox} from "../models/models";
+import {tokens} from "../config/constants";
+import {Boxes} from "../models/Boxes";
+import {BoxCandidate, Box} from "../models/types";
+import {feeErgoTree} from "../config/constants";
 let ergolib = import('ergo-lib-wasm-browser')
 
 export const lockingTx = async (stake: number): Promise<string> => {
@@ -45,6 +46,13 @@ export const lockingTx = async (stake: number): Promise<string> => {
         additionalRegisters: {},
         creationHeight: await ApiNetwork.getHeight()
     }
+    const feeBox: BoxCandidate = {
+        value: configBoxInfo.fee.toString(),
+        creationHeight: await ApiNetwork.getHeight(),
+        ergoTree: feeErgoTree,
+        assets: [],
+        additionalRegisters: {},
+    }
     let inputs = [configBox].concat(walletBoxes.boxes)
     const unsigned = {
         inputs: inputs.map(curIn => {
@@ -53,11 +61,10 @@ export const lockingTx = async (stake: number): Promise<string> => {
                 extension: {}
             }
         }),
-        outputs: [outConfigBox, ticketBox, changeBox],
+        outputs: [outConfigBox, ticketBox, changeBox, feeBox],
         dataInputs: [],
     }
     let txId = await sendTx(unsigned)
     if(txId !== 'Error') console.log("Staking tokens locked successfully")
     return txId
 }
-

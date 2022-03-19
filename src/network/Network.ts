@@ -1,8 +1,8 @@
 
 import axios from "axios";
-import {config, tokens} from "./constants";
-import {Box, ExplorerOutputBox} from "./types";
-import {Boxes} from "./Boxes";
+import {config, tokens} from "../config/constants";
+import {Box, ExplorerOutputBox} from "../models/types";
+import {Boxes} from "../models/Boxes";
 
 const nodeClient = axios.create({
     baseURL: config.nodeUrl,

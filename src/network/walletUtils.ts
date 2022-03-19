@@ -1,5 +1,5 @@
-import {Tx, Box, SignedTx} from "./types"
-import {Token} from "./types";
+import {Tx, Box, SignedTx, Token} from "../models/types";
+
 declare global {
     interface Window {
         ergo_request_read_access: () => Promise<Boolean>;

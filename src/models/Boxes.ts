@@ -1,6 +1,6 @@
 import {Box, BoxCandidate, ExplorerOutputBox, Register} from "./types";
-import {tokens} from "./constants";
-import {ApiNetwork} from "./Network";
+import {tokens} from "../config/constants";
+import {ApiNetwork} from "../network/Network";
 import {ConfigBox} from "./models";
 let ergolib = import('ergo-lib-wasm-browser')
 
