@@ -11,14 +11,14 @@ export const lockingTx = async (stake: number): Promise<string> => {
     const configBox: Box = await ApiNetwork.getConfigBox()
     const configBoxInfo: ConfigBox = new ConfigBox(configBox)
     await configBoxInfo.setup()
-    const walletBoxes = await getWalletBoxes({['ERG']: (configBoxInfo.minTicketValue + configBoxInfo.fee*2),
+    const walletBoxes = await getWalletBoxes({'ERG': (configBoxInfo.minTicketValue + configBoxInfo.fee*2),
         [tokens.staking]: stake})
     if(!walletBoxes.covered) {
         console.log('Not enough fund for locking')
         return "Not enough fund"
     }
     const userAddress = await getWalletAddress()
-    if(userAddress == "Error") {
+    if(userAddress === "Error") {
         console.log('Wallet connection failed')
         return "Wallet connection failed"
     }
@@ -34,19 +34,15 @@ export const lockingTx = async (stake: number): Promise<string> => {
         stake,
         wasm.Address.from_mainnet_str(userAddress).to_ergo_tree().sigma_serialize_bytes(),
         wasm.BoxId.from_str(configBoxInfo.boxId).as_bytes(),
-        [configBoxInfo.checkPoint, configBoxInfo.checkPoint, configBoxInfo.fee, configBoxInfo.minBoxVal]
+        [configBoxInfo.checkPoint.toString(), configBoxInfo.checkPoint.toString(), configBoxInfo.fee.toString(), configBoxInfo.minBoxVal.toString()]
     )
-    const name = "ErgoProfitSharing, Reserved Token"
-    const description = "Reserved token, defining " + stake + "stake amount in the ErgoProfitSharing"
+    // TODO: Add name and description to reserved token
     const totalErg = walletBoxes.boxes.map(box => parseInt(box.value)).reduce((a, b) => a + b)
     const changeBox: BoxCandidate = {
         value: (totalErg - configBoxInfo.minTicketValue - configBoxInfo.fee).toString(),
         ergoTree: wasm.Address.from_mainnet_str(userAddress).to_ergo_tree().to_base16_bytes(),
         assets: [{tokenId: configBox.boxId, amount: '1'}].concat(walletBoxes.excess),
-        additionalRegisters: {
-            "R4": new Buffer(name, 'utf-8').toString(),
-            "R5": new Buffer(description, 'utf-8').toString(),
-            "R6": new Buffer("0", 'utf-8').toString()},
+        additionalRegisters: {},
         creationHeight: await ApiNetwork.getHeight()
     }
     let inputs = [configBox].concat(walletBoxes.boxes)
@@ -61,7 +57,7 @@ export const lockingTx = async (stake: number): Promise<string> => {
         dataInputs: [],
     }
     let txId = await sendTx(unsigned)
-    if(txId != 'Error') console.log("Staking tokens locked successfully")
+    if(txId !== 'Error') console.log("Staking tokens locked successfully")
     return txId
 }
 

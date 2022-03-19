@@ -54,15 +54,6 @@ export type Tx = {
     outputs: BoxCandidate[],
 };
 
-// export type ExplorerToken = {
-//     tokenId: string,
-//     index: number,
-//     amount: number,
-//     name: string,
-//     decimals: number,
-//     type: string
-// }
-
 export type ExplorerRegister = {
     serializedValue: string,
     sigmaType: string,

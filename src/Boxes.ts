@@ -17,17 +17,17 @@ export class Boxes {
                 configBox.assets[1],
                 {tokenId: tokens.locking, amount: lockingCount, decimals: 0}],
             additionalRegisters: {
-                ['R4']: (await ergolib).Constant.from_i32_array(Int32Array.from(
-                    [configBox.checkPoint,
-                        configBox.minErgShare,
-                        configBox.minTokenShare,
-                        ticketCount,
-                        stakeCount,
-                        configBox.fee,
-                        configBox.minTicketValue,
-                        configBox.minBoxVal,
+                'R4': (await ergolib).Constant.from_i64_str_array(
+                    [configBox.checkPoint.toString(),
+                        configBox.minErgShare.toString(),
+                        configBox.minTokenShare.toString(),
+                        ticketCount.toString(),
+                        stakeCount.toString(),
+                        configBox.fee.toString(),
+                        configBox.minTicketValue.toString(),
+                        configBox.minBoxVal.toString(),
                     ]
-                )).encode_to_base16()},
+                ).encode_to_base16()},
             creationHeight: await ApiNetwork.getHeight()
         }
     }
@@ -36,7 +36,7 @@ export class Boxes {
                                  stake: number,
                                  address: Uint8Array,
                                  reservedId: Uint8Array,
-                                 r4: number[]):
+                                 r4: string[]):
         Promise<BoxCandidate> => {
         return {
             value: value.toString(),
@@ -44,9 +44,9 @@ export class Boxes {
             assets: [{tokenId: tokens.locking, amount: '1', decimals: 0},
                 {tokenId: tokens.staking, amount: stake.toString(), decimals: 0}],
             additionalRegisters: {
-                ['R4']: (await ergolib).Constant.from_i32_array(Int32Array.from(r4)).encode_to_base16(),
-                ['R5']: (await ergolib).Constant.from_byte_array(address).encode_to_base16(),
-                ['R6']: (await ergolib).Constant.from_byte_array(reservedId).encode_to_base16(),
+                'R4': (await ergolib).Constant.from_i64_str_array(r4).encode_to_base16(),
+                'R5': (await ergolib).Constant.from_byte_array(address).encode_to_base16(),
+                'R6': (await ergolib).Constant.from_byte_array(reservedId).encode_to_base16(),
             },
             creationHeight: await ApiNetwork.getHeight()
         }
