@@ -20,25 +20,6 @@ export class BoxImpl implements Box{
         this.transactionId = bx?.transactionId?? "";
         this.index = bx?.index?? 0;
     }
-    from_json = (json: ExplorerOutputBox): Box =>{
-        let bx :BoxImpl = new BoxImpl();
-        bx.boxId = json.boxId;
-        bx.value = json.value.toString();
-        bx.ergoTree = json.ergoTree;
-        bx.assets = json.assets;
-        bx.creationHeight = json.creationHeight;
-        bx.transactionId = json.transactionId;
-        bx.index = json.index;
-        // TODO
-        // bx.additionalRegisters = Object.entries(json.additionalRegisters)
-        //     .map(([k, v]) =>{
-        //         let r: Register = Object.assign({
-        //             [k] : v.serializedValue
-        //         })
-        //         return r
-        //     });
-        return bx
-    }
 }
 
 export class ConfigBox extends BoxImpl{
@@ -61,11 +42,10 @@ export class ConfigBox extends BoxImpl{
         this.minTicketValue = 0
         this.minBoxVal = 0
     }
-
-    setup = async (box: Box): Promise<void> => {
-        console.log(box)
-        const configRegister = (await ergolib).Constant.decode_from_base16(box.additionalRegisters['R4'])
+    setup = async (): Promise<void> => {
+        const configRegister = (await ergolib).Constant.decode_from_base16(this.additionalRegisters['R4'])
             .to_i64_str_array().map(cur => parseInt(cur))
+        console.log(configRegister)
         this.checkPoint = configRegister[0]
         this.minErgShare = configRegister[1]
         this.minTokenShare = configRegister[2]

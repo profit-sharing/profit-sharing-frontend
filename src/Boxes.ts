@@ -1,4 +1,4 @@
-import {BoxCandidate} from "./types";
+import {Box, BoxCandidate, ExplorerOutputBox, Register} from "./types";
 import {tokens} from "./constants";
 import {ApiNetwork} from "./Network";
 import {ConfigBox} from "./models";
@@ -49,6 +49,24 @@ export class Boxes {
                 ['R6']: (await ergolib).Constant.from_byte_array(reservedId).encode_to_base16(),
             },
             creationHeight: await ApiNetwork.getHeight()
+        }
+    }
+
+    static boxFromExplorer = (inputBox: ExplorerOutputBox): Box => {
+        let registers: Register = {}
+        Object.entries(inputBox.additionalRegisters)
+            .forEach(([k, v]) =>{
+                registers[k] = v.serializedValue
+            })
+        return{
+            boxId : inputBox.boxId,
+            value : inputBox.value.toString(),
+            ergoTree : inputBox.ergoTree,
+            assets : inputBox.assets.map(tk => {return {tokenId: tk.tokenId, amount: tk.amount.toString()}}),
+            creationHeight : inputBox.creationHeight,
+            transactionId : inputBox.transactionId,
+            index : inputBox.index,
+            additionalRegisters : registers
         }
     }
 }

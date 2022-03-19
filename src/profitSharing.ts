@@ -8,8 +8,10 @@ let ergolib = import('ergo-lib-wasm-browser')
 
 export const lockingTx = async (stake: number): Promise<string> => {
     let wasm = await ergolib
-    const configBox: ConfigBox = await ApiNetwork.getConfigBox()
-    const walletBoxes = await getWalletBoxes({['ERG']: (configBox.minTicketValue + configBox.fee*2),
+    const configBox: Box = await ApiNetwork.getConfigBox()
+    const configBoxInfo: ConfigBox = new ConfigBox(configBox)
+    await configBoxInfo.setup()
+    const walletBoxes = await getWalletBoxes({['ERG']: (configBoxInfo.minTicketValue + configBoxInfo.fee*2),
         [tokens.staking]: stake})
     if(!walletBoxes.covered) {
         console.log('Not enough fund for locking')
@@ -22,30 +24,32 @@ export const lockingTx = async (stake: number): Promise<string> => {
     }
 
     const outConfigBox: BoxCandidate = await Boxes.getConfigBox(
-        configBox,
-        configBox.assets[2].amount + 1,
-        configBox.stakeCount + stake,
-        configBox.ticketCount+1
+        configBoxInfo,
+        (parseInt(configBoxInfo.assets[2].amount) - 1).toString(),
+        configBoxInfo.stakeCount + stake,
+        configBoxInfo.ticketCount+1
     )
     const ticketBox: BoxCandidate = await Boxes.getTicketBox(
-        configBox.minTicketValue,
+        configBoxInfo.minTicketValue,
         stake,
         wasm.Address.from_mainnet_str(userAddress).to_ergo_tree().sigma_serialize_bytes(),
-        wasm.BoxId.from_str(configBox.boxId).as_bytes(),
-        [configBox.checkPoint, configBox.checkPoint, configBox.fee, configBox.minBoxVal]
+        wasm.BoxId.from_str(configBoxInfo.boxId).as_bytes(),
+        [configBoxInfo.checkPoint, configBoxInfo.checkPoint, configBoxInfo.fee, configBoxInfo.minBoxVal]
     )
     const name = "ErgoProfitSharing, Reserved Token"
     const description = "Reserved token, defining " + stake + "stake amount in the ErgoProfitSharing"
     const totalErg = walletBoxes.boxes.map(box => parseInt(box.value)).reduce((a, b) => a + b)
     const changeBox: BoxCandidate = {
-        value: (totalErg - configBox.minTicketValue - configBox.fee).toString(),
+        value: (totalErg - configBoxInfo.minTicketValue - configBoxInfo.fee).toString(),
         ergoTree: wasm.Address.from_mainnet_str(userAddress).to_ergo_tree().to_base16_bytes(),
-        assets: walletBoxes.excess.concat({tokenId: configBox.boxId, amount: '1'}),
-        additionalRegisters: {},
+        assets: [{tokenId: configBox.boxId, amount: '1'}].concat(walletBoxes.excess),
+        additionalRegisters: {
+            "R4": new Buffer(name, 'utf-8').toString(),
+            "R5": new Buffer(description, 'utf-8').toString(),
+            "R6": new Buffer("0", 'utf-8').toString()},
         creationHeight: await ApiNetwork.getHeight()
     }
-    let x: Box = configBox
-    let inputs = [x].concat(walletBoxes.boxes)
+    let inputs = [configBox].concat(walletBoxes.boxes)
     const unsigned = {
         inputs: inputs.map(curIn => {
             return {
@@ -53,7 +57,7 @@ export const lockingTx = async (stake: number): Promise<string> => {
                 extension: {}
             }
         }),
-        outputs: [outConfigBox, ],
+        outputs: [outConfigBox, ticketBox, changeBox],
         dataInputs: [],
     }
     let txId = await sendTx(unsigned)

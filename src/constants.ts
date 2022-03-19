@@ -11,5 +11,5 @@ export const tokens = {
 export const config = {
     nodeUrl : "http://10.10.9.3:9064/",
     explorerApi : "http://10.10.9.3:7000/",
-    backEnd : "localhost:9000"
+    backEnd : "http://localhost:9000/"
 }

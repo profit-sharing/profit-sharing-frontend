@@ -84,9 +84,10 @@ export const sendTx = async (unsignedTx: Tx): Promise<string> => {
     if (setup) {
         let tx = null
         try {
+            console.log(unsignedTx)
             tx = await ergo.sign_tx(unsignedTx)
         } catch (e) {
-            console.log('Error while sending funds from Yoroi!', true)
+            console.log(e)
             return "Error"
         }
         let txId = await ergo.submit_tx(tx)
