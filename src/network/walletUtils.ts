@@ -1,12 +1,5 @@
 import {Tx, Box, SignedTx, Token} from "../models/types";
 
-declare global {
-    interface Window {
-        ergo_request_read_access: () => Promise<Boolean>;
-        ergo_check_read_access: () => Promise<Boolean>;
-    }
-}
-
 declare namespace ergo{
     const get_balance: (token_id: string) => Promise<number>;
     const get_change_address: () => Promise<string>;

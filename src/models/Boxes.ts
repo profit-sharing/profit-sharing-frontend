@@ -1,5 +1,4 @@
 import {Box, BoxCandidate, ExplorerOutputBox, Register} from "./types";
-import {tokens} from "../config/constants";
 import {ApiNetwork} from "../network/Network";
 import {ConfigBox} from "./models";
 let ergolib = import('ergo-lib-wasm-browser')
@@ -13,9 +12,9 @@ export class Boxes {
         return {
             value: configBox.value,
             ergoTree: configBox.ergoTree,
-            assets: [{tokenId: tokens.configNFT, amount: '1', decimals: 0},
+            assets: [{tokenId: window.config.token.configNFT, amount: '1', decimals: 0},
                 configBox.assets[1],
-                {tokenId: tokens.locking, amount: lockingCount, decimals: 0}],
+                {tokenId: window.config.token.locking, amount: lockingCount, decimals: 0}],
             additionalRegisters: {
                 'R4': (await ergolib).Constant.from_i64_str_array(
                     [configBox.checkPoint.toString(),
@@ -41,8 +40,8 @@ export class Boxes {
         return {
             value: value.toString(),
             ergoTree: await ApiNetwork.getTicketErgoTree(),
-            assets: [{tokenId: tokens.locking, amount: '1', decimals: 0},
-                {tokenId: tokens.staking, amount: stake.toString(), decimals: 0}],
+            assets: [{tokenId: window.config.token.locking, amount: '1', decimals: 0},
+                {tokenId: window.config.token.staking, amount: stake.toString(), decimals: 0}],
             additionalRegisters: {
                 'R4': (await ergolib).Constant.from_i64_str_array(r4).encode_to_base16(),
                 'R5': (await ergolib).Constant.from_byte_array(address).encode_to_base16(),

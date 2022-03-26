@@ -1,10 +1,8 @@
 import {getWalletBoxes, getWalletAddress, sendTx} from "../network/walletUtils";
 import {ApiNetwork} from "../network/Network";
 import {ConfigBox} from "../models/models";
-import {tokens} from "../config/constants";
 import {Boxes} from "../models/Boxes";
 import {BoxCandidate, Box} from "../models/types";
-import {feeErgoTree} from "../config/constants";
 let ergolib = import('ergo-lib-wasm-browser')
 
 export const lockingTx = async (stake: number): Promise<string> => {
@@ -13,7 +11,7 @@ export const lockingTx = async (stake: number): Promise<string> => {
     const configBoxInfo: ConfigBox = new ConfigBox(configBox)
     await configBoxInfo.setup()
     const walletBoxes = await getWalletBoxes({'ERG': (configBoxInfo.minTicketValue + configBoxInfo.fee*2),
-        [tokens.staking]: stake})
+        [window.config.token.staking]: stake})
     if(!walletBoxes.covered) {
         console.log('Not enough fund for locking')
         return "Not enough fund"
@@ -49,7 +47,7 @@ export const lockingTx = async (stake: number): Promise<string> => {
     const feeBox: BoxCandidate = {
         value: configBoxInfo.fee.toString(),
         creationHeight: await ApiNetwork.getHeight(),
-        ergoTree: feeErgoTree,
+        ergoTree: window.config.ergoTrees.fee,
         assets: [],
         additionalRegisters: {},
     }
