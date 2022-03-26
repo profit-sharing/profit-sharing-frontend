@@ -9,26 +9,17 @@ declare namespace ergo{
     const submit_tx: (signedTx: SignedTx) => Promise<string>
 }
 
-const walletDisconnect = (): void => {
-    console.log('Disconnected from Yoroi wallet', true)
-    localStorage.removeItem('wallet');
-}
-
-export const setupWallet = async (isFirst: Boolean = false): Promise<Boolean> =>{
+export const setupWallet = async (): Promise<Boolean> =>{
     if (typeof window.ergo_request_read_access === "undefined") {
-        console.log('You must install Yoroi-Ergo dApp Connector to be able to connect to Yoroi', true)
+        console.log('You must install Ergo-wallet dApp Connector to be able to connect to your wallet')
     } else {
-        if (isFirst) {
-            window.removeEventListener("ergo_wallet_disconnected", walletDisconnect);
-            window.addEventListener("ergo_wallet_disconnected", walletDisconnect);
-        }
         let hasAccess = await window.ergo_check_read_access()
         if (!hasAccess) {
             let granted = await window.ergo_request_read_access()
             if (!granted) {
-                if (isFirst) console.log('Wallet access denied', true)
+                console.log('Wallet access denied')
             } else {
-                if (isFirst) console.log('Successfully connected to Yoroi')
+                console.log('Successfully connected to Wallet')
                 return true
             }
         } else return true
