@@ -9,7 +9,7 @@ type BaseConstant = {
 }
 
 
-const conf = dotenv.config().parsed
+const conf = require('dotenv').config().parsed
 export const getEnv = (key: string, fallback: string): string => {
     if(conf) {
         if (conf.hasOwnProperty(key)) {

@@ -2,7 +2,6 @@ import axios from "axios";
 import {Box, ExplorerOutputBox} from "../models/types";
 import {Boxes} from "../models/Boxes";
 import {constants} from "../config/constants";
-import {BaseConfig} from "../config/configs";
 
 const nodeClient = axios.create({
     baseURL: constants.node,

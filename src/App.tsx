@@ -6,11 +6,6 @@ import './App.css';
 import {lockingTx} from "./profitSharing/profitSharing";
 import {createConfig} from "./config/configs";
 
-type State = {
-  lockingTx: string,
-  lockingAmount: number
-}
-
 const App: React.FC = () => {
     const [lockTx, setLockTx] = useState<string>("unknown")
     const [lockAmount, setLockAmount] = useState<number>(0)
@@ -47,44 +42,6 @@ const App: React.FC = () => {
             </div>
         </Container>
     );
-}
-
-class App2 extends Component<{}, State> {
-  state: State = {
-    lockingTx: 'unknown',
-    lockingAmount: 0,
-  };
-
-  lock = (amount: number) => {
-    lockingTx(2).then(res => this.setState({lockingTx: res}))
-  }
-  onAmountChange = (e: any) => this.setState(e.target.value);
-  render() {
-    return (
-        <Container sx={{m: 5}}>
-          <div>
-            <Button variant="contained" sx={{m: 2}}
-                    onClick={() => {this.lock(this.state.lockingAmount)}}>
-                        Lock Staking Tokens
-                      </Button>
-            <TextField
-                sx={{m: 1}}
-                style={{width: 100}}
-                id="lock-amount"
-            />
-            <TextField
-                disabled
-                sx={{m: 1}}
-                style={{width: 600}}
-                id="outlined-address"
-                value={this.state.lockingTx}
-            />
-          </div>
-        </Container>
-    );
-  }
-
-
 }
 
 export default App;
