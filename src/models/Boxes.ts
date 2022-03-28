@@ -1,20 +1,22 @@
 import {Box, BoxCandidate, ExplorerOutputBox, Register} from "./types";
 import {ApiNetwork} from "../network/Network";
 import {ConfigBox} from "./models";
+import {BaseConfig} from "../config/configs";
 let ergolib = import('ergo-lib-wasm-browser')
 
 export class Boxes {
     static getConfigBox = async (configBox: ConfigBox,
                                  lockingCount: string,
                                  stakeCount: number,
-                                 ticketCount: number):
+                                 ticketCount: number,
+                                 config: BaseConfig):
         Promise<BoxCandidate> => {
         return {
             value: configBox.value,
             ergoTree: configBox.ergoTree,
-            assets: [{tokenId: window.config.token.configNFT, amount: '1', decimals: 0},
+            assets: [{tokenId: config.tokens.configNFT, amount: '1', decimals: 0},
                 configBox.assets[1],
-                {tokenId: window.config.token.locking, amount: lockingCount, decimals: 0}],
+                {tokenId: config.tokens.locking, amount: lockingCount, decimals: 0}],
             additionalRegisters: {
                 'R4': (await ergolib).Constant.from_i64_str_array(
                     [configBox.checkPoint.toString(),
@@ -35,13 +37,14 @@ export class Boxes {
                                  stake: number,
                                  address: Uint8Array,
                                  reservedId: Uint8Array,
-                                 r4: string[]):
+                                 r4: string[],
+                                 config: BaseConfig):
         Promise<BoxCandidate> => {
         return {
             value: value.toString(),
             ergoTree: await ApiNetwork.getTicketErgoTree(),
-            assets: [{tokenId: window.config.token.locking, amount: '1', decimals: 0},
-                {tokenId: window.config.token.staking, amount: stake.toString(), decimals: 0}],
+            assets: [{tokenId: config.tokens.locking, amount: '1', decimals: 0},
+                {tokenId: config.tokens.staking, amount: stake.toString(), decimals: 0}],
             additionalRegisters: {
                 'R4': (await ergolib).Constant.from_i64_str_array(r4).encode_to_base16(),
                 'R5': (await ergolib).Constant.from_byte_array(address).encode_to_base16(),

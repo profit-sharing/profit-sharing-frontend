@@ -1,7 +1,7 @@
 import axios from "axios";
 import {Box, ExplorerOutputBox} from "../models/types";
 import {Boxes} from "../models/Boxes";
-import {constants} from "../config/constants";
+import {BaseConfig, constants} from "../config/configs";
 
 const nodeClient = axios.create({
     baseURL: constants.node,
@@ -15,8 +15,9 @@ const explorerApi = axios.create({
 })
 
 const backEnd = axios.create({
-    baseURL: constants.backEndAPI,
-    timeout: 8000
+    baseURL: constants.backendAPI,
+    timeout: 8000,
+    headers: {"Content-Type": "application/json"}
 })
 
 export class ApiNetwork {
@@ -33,8 +34,8 @@ export class ApiNetwork {
         return nodeClient.get("/info").then((info: any) => info.data.fullHeight)
     }
 
-    static getConfigBox = async (): Promise<Box> => {
-        const expBox: ExplorerOutputBox = Object.assign(await ApiNetwork.getBoxWithToken(window.config.token.configNFT).then(res => res.boxes[0]))
+    static getConfigBox = async (config: BaseConfig): Promise<Box> => {
+        const expBox: ExplorerOutputBox = Object.assign(await ApiNetwork.getBoxWithToken(config.tokens.configNFT).then(res => res.boxes[0]))
         return Boxes.boxFromExplorer(expBox)
     }
 
@@ -43,7 +44,7 @@ export class ApiNetwork {
         return Boxes.boxFromExplorer(expBox)
     }
 
-    static getBackendConfig = async (): Promise<void> => {
+    static getBackendConfig = async (): Promise<BaseConfig> => {
         return Object.assign(backEnd.get('/api/info').then(res => res.data))
     }
 

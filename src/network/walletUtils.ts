@@ -11,15 +11,15 @@ declare namespace ergo{
 
 export const setupWallet = async (): Promise<Boolean> =>{
     if (typeof window.ergo_request_read_access === "undefined") {
-        console.log('You must install Ergo-wallet dApp Connector to be able to connect to your wallet')
+        console.log('[profit-sharing] You must install Ergo-wallet dApp Connector to be able to connect to your wallet')
     } else {
         let hasAccess = await window.ergo_check_read_access()
         if (!hasAccess) {
             let granted = await window.ergo_request_read_access()
             if (!granted) {
-                console.log('Wallet access denied')
+                console.log('[profit-sharing] Wallet access denied')
             } else {
-                console.log('Successfully connected to Wallet')
+                console.log('[profit-sharing] Successfully connected to Wallet')
                 return true
             }
         } else return true
@@ -68,10 +68,9 @@ export const sendTx = async (unsignedTx: Tx): Promise<string> => {
     if (setup) {
         let tx = null
         try {
-            console.log(unsignedTx)
             tx = await ergo.sign_tx(unsignedTx)
         } catch (e) {
-            console.log(e)
+            console.log("[profit-sharing] wallet error: " + e.info)
             return "Error"
         }
         let txId = await ergo.submit_tx(tx)
