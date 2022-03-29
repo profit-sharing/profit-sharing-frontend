@@ -1,4 +1,5 @@
 import {Box, Token, Register} from "./types";
+import {decodeString} from "../config/utils";
 import * as wasm from 'ergo-lib-wasm-browser';
 
 export class BoxImpl implements Box{
@@ -53,5 +54,36 @@ export class ConfigBox extends BoxImpl{
         this.fee = configRegister[5]
         this.minTicketValue = configRegister[6]
         this.minBoxVal = configRegister[7]
+    }
+}
+
+export class TicketBox extends BoxImpl{
+    addressErgoTree: Uint8Array;
+    reservedToken: string;
+    initialCheckPoint: number;
+    checkPoint: number;
+    fee: number;
+    minBoxVal: number;
+    stake: number;
+    constructor(bx: Box) {
+        super(bx)
+        this.addressErgoTree = Uint8Array.from([])
+        this.reservedToken = ""
+        this.initialCheckPoint = 0
+        this.checkPoint = 0
+        this.fee = 0
+        this.minBoxVal = 0
+        this.stake = 0
+    }
+    setup = async (): Promise<void> => {
+        const configRegister = wasm.Constant.decode_from_base16(this.additionalRegisters['R4'])
+            .to_i64_str_array().map(cur => parseInt(cur))
+        this.initialCheckPoint = configRegister[0]
+        this.checkPoint = configRegister[1]
+        this.fee = configRegister[2]
+        this.minBoxVal = configRegister[3]
+        this.addressErgoTree = wasm.Constant.decode_from_base16(this.additionalRegisters['R5']).to_byte_array()
+        this.reservedToken = await decodeString(this.additionalRegisters['R6'])
+        this.stake = parseInt(this.assets[1].amount)
     }
 }

@@ -3,14 +3,16 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import './App.css';
-import {lockingTx} from "./profitSharing/profitSharing";
+import {lockingTx, chargingTx} from "./profitSharing/profitSharing";
 import {BaseConfig} from "./config/configs";
 import {ApiNetwork} from "./network/Network";
-
 
 const App: React.FC = () => {
     const [lockTx, setLockTx] = useState<string>("unknown")
     const [lockAmount, setLockAmount] = useState<number>(0)
+    const [chargeTx, setChargeTx] = useState<string>("unknown")
+    const [tokenCharge, setTokenCharge] = useState<string>("")
+    const [chargeAmount, setChargeAmount] = useState<number>(0)
     const [config, setConfig] = useState<BaseConfig|undefined>(undefined)
 
     useEffect(() => {
@@ -21,6 +23,9 @@ const App: React.FC = () => {
 
     const lock = (amount: number) => {
         lockingTx(lockAmount, config!).then(res => setLockTx(res))
+    }
+    const charge = (reservedToken: string, amount: number) => {
+        chargingTx(tokenCharge, chargeAmount*1e9, config!).then(setChargeTx)
     }
     return (
         <Container sx={{m: 5}}>
@@ -44,6 +49,37 @@ const App: React.FC = () => {
                     style={{width: 600}}
                     id="outlined-address"
                     value={lockTx}
+                />
+            </div>
+            <div>
+                <Button variant="contained" sx={{m: 2}}
+                        onClick={() => {charge(tokenCharge, chargeAmount)}}>
+                    Charge your ticket
+                </Button>
+                <TextField
+                    onChange={event => {
+                        const {value} = event.target;
+                        setChargeAmount(parseInt(value))
+                    }}
+                    sx={{m: 1}}
+                    style={{width: 100}}
+                    id="charge-amount"
+                />
+                <TextField
+                    onChange={event => {
+                        const {value} = event.target;
+                        setTokenCharge(value)
+                    }}
+                    sx={{m: 1}}
+                    style={{width: 600}}
+                    id="reserved-token-input"
+                />
+                <TextField
+                    disabled
+                    sx={{m: 1}}
+                    style={{width: 600}}
+                    id="outlined-address"
+                    value={chargeTx}
                 />
             </div>
         </Container>
