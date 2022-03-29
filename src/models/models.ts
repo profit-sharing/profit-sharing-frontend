@@ -83,7 +83,7 @@ export class TicketBox extends BoxImpl{
         this.fee = configRegister[2]
         this.minBoxVal = configRegister[3]
         this.addressErgoTree = wasm.Constant.decode_from_base16(this.additionalRegisters['R5']).to_byte_array()
-        this.reservedToken = await decodeString(this.additionalRegisters['R6'])
+        this.reservedToken = Buffer.from(wasm.Constant.decode_from_base16(this.additionalRegisters['R6']).to_byte_array()).toString('hex')
         this.stake = parseInt(this.assets[1].amount)
     }
 }
