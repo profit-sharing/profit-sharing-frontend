@@ -1,5 +1,5 @@
 import {Box, Token, Register} from "./types";
-let ergolib = import('ergo-lib-wasm-browser')
+import * as wasm from 'ergo-lib-wasm-browser';
 
 export class BoxImpl implements Box{
     boxId: string;
@@ -43,7 +43,7 @@ export class ConfigBox extends BoxImpl{
         this.minBoxVal = 0
     }
     setup = async (): Promise<void> => {
-        const configRegister = (await ergolib).Constant.decode_from_base16(this.additionalRegisters['R4'])
+        const configRegister = wasm.Constant.decode_from_base16(this.additionalRegisters['R4'])
             .to_i64_str_array().map(cur => parseInt(cur))
         this.checkPoint = configRegister[0]
         this.minErgShare = configRegister[1]

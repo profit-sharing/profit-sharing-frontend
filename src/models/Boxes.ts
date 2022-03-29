@@ -2,7 +2,7 @@ import {Box, BoxCandidate, ExplorerOutputBox, Register} from "./types";
 import {ApiNetwork} from "../network/Network";
 import {ConfigBox} from "./models";
 import {BaseConfig} from "../config/configs";
-let ergolib = import('ergo-lib-wasm-browser')
+import * as wasm from 'ergo-lib-wasm-browser';
 
 export class Boxes {
     static getConfigBox = async (configBox: ConfigBox,
@@ -18,7 +18,7 @@ export class Boxes {
                 configBox.assets[1],
                 {tokenId: config.tokens.locking, amount: lockingCount, decimals: 0}],
             additionalRegisters: {
-                'R4': (await ergolib).Constant.from_i64_str_array(
+                'R4': wasm.Constant.from_i64_str_array(
                     [configBox.checkPoint.toString(),
                         configBox.minErgShare.toString(),
                         configBox.minTokenShare.toString(),
@@ -46,9 +46,9 @@ export class Boxes {
             assets: [{tokenId: config.tokens.locking, amount: '1', decimals: 0},
                 {tokenId: config.tokens.staking, amount: stake.toString(), decimals: 0}],
             additionalRegisters: {
-                'R4': (await ergolib).Constant.from_i64_str_array(r4).encode_to_base16(),
-                'R5': (await ergolib).Constant.from_byte_array(address).encode_to_base16(),
-                'R6': (await ergolib).Constant.from_byte_array(reservedId).encode_to_base16(),
+                'R4': wasm.Constant.from_i64_str_array(r4).encode_to_base16(),
+                'R5': wasm.Constant.from_byte_array(address).encode_to_base16(),
+                'R6': wasm.Constant.from_byte_array(reservedId).encode_to_base16(),
             },
             creationHeight: await ApiNetwork.getHeight()
         }

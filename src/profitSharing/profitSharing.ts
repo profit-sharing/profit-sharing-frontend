@@ -4,10 +4,9 @@ import {ConfigBox} from "../models/models";
 import {Boxes} from "../models/Boxes";
 import {BoxCandidate, Box} from "../models/types";
 import {BaseConfig} from "../config/configs";
-let ergolib = import('ergo-lib-wasm-browser')
+import * as wasm from 'ergo-lib-wasm-browser';
 
 export const lockingTx = async (stake: number, config: BaseConfig): Promise<string> => {
-    let wasm = await ergolib
     const configBox: Box = await ApiNetwork.getConfigBox(config)
     const configBoxInfo: ConfigBox = new ConfigBox(configBox)
     await configBoxInfo.setup()
