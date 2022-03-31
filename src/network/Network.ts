@@ -39,32 +39,26 @@ export class ApiNetwork {
         return Boxes.boxFromExplorer(expBox)
     }
 
-    static getTicketBox = async (reservedToken: string): Promise<Box> => {
-        const expBox: ExplorerOutputBox = Object.assign(await ApiNetwork.getBoxWithToken(reservedToken).then(res => res.boxes[0]))
-        return Boxes.boxFromExplorer(expBox)
+    static getTicketBox = async (reservedToken: string, config: BaseConfig): Promise<Box> => {
+        const ticketFilter = (ticketBox: ExplorerOutputBox) => {
+            return ticketBox.assets[0].tokenId === config.tokens.locking &&
+                ticketBox.additionalRegisters['R6'].renderedValue === reservedToken
+        }
+        let expBoxes: ExplorerOutputBox[] = []
+        let offset = 0
+        while(expBoxes.length === 0){
+            const output = await ApiNetwork.getBoxWithToken(config.tokens.locking, offset, 100)
+            if(output.total === 0) {
+                throw new Error("[profit-sharing] ticket with specified reserved token not found")
+            }
+            expBoxes = Object.assign(output.boxes).filter(ticketFilter)
+            offset += 100
+        }
+        return Boxes.boxFromExplorer(expBoxes[0])
     }
 
     static getBackendConfig = async (): Promise<BaseConfig> => {
         return Object.assign(backEnd.get('/api/info').then(res => res.data))
-    }
-
-    static getTicketErgoTree = async (): Promise<string> => {
-        return backEnd.get('/api/info').then(res => res.data.ergoTrees.ticket)
-    }
-    static getConfigErgoTree = async (): Promise<string> => {
-        return backEnd.get('/api/info').then(res => res.data.ergoTrees.config)
-    }
-    static getConfigNFT = async (): Promise<string> => {
-        return backEnd.get('/api/info').then(res => res.data.tokens.configNFT)
-    }
-    static getDistribution = async (): Promise<string> => {
-        return backEnd.get('/api/info').then(res => res.data.tokens.distribution)
-    }
-    static getLocking = async (): Promise<string> => {
-        return backEnd.get('/api/info').then(res => res.data.tokens.locking)
-    }
-    static getStaking = async (): Promise<string> => {
-        return backEnd.get('/api/info').then(res => res.data.tokens.staking)
     }
 }
 

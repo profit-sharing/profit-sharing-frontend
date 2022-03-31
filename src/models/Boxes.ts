@@ -42,7 +42,7 @@ export class Boxes {
         Promise<BoxCandidate> => {
         return {
             value: value.toString(),
-            ergoTree: await ApiNetwork.getTicketErgoTree(),
+            ergoTree: config.ergoTrees.ticket,
             assets: [{tokenId: config.tokens.locking, amount: '1', decimals: 0},
                 {tokenId: config.tokens.staking, amount: stake.toString(), decimals: 0}],
             additionalRegisters: {
