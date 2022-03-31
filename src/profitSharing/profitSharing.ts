@@ -128,3 +128,65 @@ export const chargingTx = async (reservedToken: string, chargeAmount: number, co
     if(txId !== 'Error') console.log("[profit-sharing] Ticket charged successfully")
     return txId
 }
+
+export const unlockingTx = async (reservedToken: string, config: BaseConfig) => {
+    let ticketBox: Box;
+    try {
+        ticketBox = await ApiNetwork.getTicketBox(reservedToken, config)
+    } catch (e){
+        console.log(e.info)
+        return "Ticket not found"
+    }
+    const ticketBoxInfo: TicketBox = new TicketBox(ticketBox)
+    await ticketBoxInfo.setup()
+    const configBox: Box = await ApiNetwork.getConfigBox(config)
+    const configBoxInfo: ConfigBox = new ConfigBox(configBox)
+    await configBoxInfo.setup()
+    const walletBoxes = await getWalletBoxes({[reservedToken]: 1})
+    if(!walletBoxes.covered) {
+        console.log('[profit-sharing] Not enough fund for locking')
+        return "Not enough fund"
+    }
+    const changeAddress = await getWalletAddress()
+    if(changeAddress === "Error") {
+        console.log('[profit-sharing] Wallet connection failed')
+        return "Wallet connection failed"
+    }
+    const outConfigBox: BoxCandidate = await Boxes.getConfigBox(
+        configBoxInfo,
+        (parseInt(configBoxInfo.assets[2].amount) + 1).toString(),
+        configBoxInfo.stakeCount - ticketBoxInfo.stake,
+        configBoxInfo.ticketCount - 1,
+        config
+    )
+    const totalErg = walletBoxes.boxes.map(box => parseInt(box.value)).reduce((a, b) => a + b)
+    const changeBox: BoxCandidate = {
+        value: (parseInt(ticketBoxInfo.value) + totalErg - ticketBoxInfo.fee).toString(),
+        ergoTree: wasm.Address.from_mainnet_str(changeAddress).to_ergo_tree().to_base16_bytes(),
+        assets: [{tokenId: config.tokens.staking, amount: ticketBoxInfo.stake.toString()}].concat(walletBoxes.excess),
+        additionalRegisters: {},
+        creationHeight: await ApiNetwork.getHeight()
+    }
+    const feeBox: BoxCandidate = {
+        value: ticketBoxInfo.fee.toString(),
+        creationHeight: await ApiNetwork.getHeight(),
+        ergoTree: config.ergoTrees.fee,
+        assets: [],
+        additionalRegisters: {},
+    }
+    let inputs = [configBox, ticketBox].concat(walletBoxes.boxes)
+    const unsigned = {
+        inputs: inputs.map(curIn => {
+            return {
+                ...curIn,
+                extension: {}
+            }
+        }),
+        outputs: [outConfigBox, changeBox, feeBox],
+        dataInputs: [],
+    }
+    console.log(unsigned)
+    let txId = await sendTx(unsigned)
+    if(txId !== 'Error') console.log("[profit-sharing] Staking tokens unlocked successfully")
+    return txId
+}

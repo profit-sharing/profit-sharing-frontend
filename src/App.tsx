@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import './App.css';
-import {lockingTx, chargingTx} from "./profitSharing/profitSharing";
+import {lockingTx, chargingTx, unlockingTx} from "./profitSharing/profitSharing";
 import {BaseConfig} from "./config/configs";
 import {ApiNetwork} from "./network/Network";
 
@@ -13,6 +13,8 @@ const App: React.FC = () => {
     const [chargeTx, setChargeTx] = useState<string>("unknown")
     const [tokenCharge, setTokenCharge] = useState<string>("")
     const [chargeAmount, setChargeAmount] = useState<number>(0)
+    const [unlockTx, setUnlockTx] = useState<string>("unknown")
+    const [unlockToken, setUnlockToken] = useState<string>("")
     const [config, setConfig] = useState<BaseConfig|undefined>(undefined)
 
     useEffect(() => {
@@ -26,6 +28,9 @@ const App: React.FC = () => {
     }
     const charge = (reservedToken: string, amount: number) => {
         chargingTx(tokenCharge, chargeAmount*1e9, config!).then(setChargeTx)
+    }
+    const unlock = (reservedToken: string) => {
+        unlockingTx(reservedToken, config!).then(setUnlockTx)
     }
     return (
         <Container sx={{m: 5}}>
@@ -80,6 +85,28 @@ const App: React.FC = () => {
                     style={{width: 600}}
                     id="outlined-address"
                     value={chargeTx}
+                />
+            </div>
+            <div>
+                <Button variant="contained" sx={{m: 2}}
+                        onClick={() => {unlock(unlockToken)}}>
+                    Unlock staking tokens
+                </Button>
+                <TextField
+                    onChange={event => {
+                        const {value} = event.target;
+                        setUnlockToken(value)
+                    }}
+                    sx={{m: 1}}
+                    style={{width: 600}}
+                    id="reserved-token-input2"
+                />
+                <TextField
+                    disabled
+                    sx={{m: 1}}
+                    style={{width: 600}}
+                    id="outlined-address"
+                    value={unlockTx}
                 />
             </div>
         </Container>
