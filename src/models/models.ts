@@ -1,5 +1,4 @@
 import {Box, Token, Register} from "./types";
-import {decodeString} from "../config/utils";
 import * as wasm from 'ergo-lib-wasm-browser';
 
 export class BoxImpl implements Box{
