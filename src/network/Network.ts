@@ -32,13 +32,33 @@ export class ApiNetwork {
     }
 
     static getMempoolTransactions = (address: string): Promise<{total: number, txs: ExplorerTransaction}> => {
-        return explorerApi.get(`/api/v1/mempool/transactions/byAddress/${address}`).then(res => {
+        try{return explorerApi.get(`/api/v1/mempool/transactions/byAddress/${address}`).then(res => {
             const data = res.data
             return {
                 txs: data.items,
                 total: data.total
             }
-        })
+        })}
+        catch(e) {throw new Error("not found")}
+    }
+    static getConfirmedTx = (txId: string): Promise<ExplorerTransaction | null> => {
+        return explorerApi.get(`/api/v1/transactions/${txId}`).then(res => {
+            return res.data
+        }).catch(e => null)
+    }
+    static getUnconfirmedTx = (txId: string): Promise<ExplorerTransaction | null> => {
+        return explorerApi.get(`/api/v0/transactions/unconfirmed/${txId}`).then(res => {
+            return res.data
+        }).catch(e => null)
+    }
+    static getConfNum = async (txId: string): Promise<number> => {
+        const tx = await ApiNetwork.getUnconfirmedTx(txId)
+        if(tx !== null) return 0
+        else {
+            const confirmed = await ApiNetwork.getConfirmedTx(txId)
+            if (confirmed != null && confirmed.hasOwnProperty('numConfirmations')) return confirmed.numConfirmations
+            else return -1
+        }
     }
 
     static getHeight = async (): Promise<number> => {

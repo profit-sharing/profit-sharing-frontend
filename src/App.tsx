@@ -6,14 +6,15 @@ import './App.css';
 import {lockingTx, chargingTx, unlockingTx} from "./profitSharing/profitSharing";
 import {BaseConfig} from "./config/configs";
 import {ApiNetwork} from "./network/Network";
+import ActionResult from "./components/actionResult";
 
 const App: React.FC = () => {
-    const [lockTx, setLockTx] = useState<string>("unknown")
+    const [lockTx, setLockTx] = useState<string>("No Transaction")
     const [lockAmount, setLockAmount] = useState<number>(0)
-    const [chargeTx, setChargeTx] = useState<string>("unknown")
+    const [chargeTx, setChargeTx] = useState<string>("No Transaction")
     const [tokenCharge, setTokenCharge] = useState<string>("")
     const [chargeAmount, setChargeAmount] = useState<number>(0)
-    const [unlockTx, setUnlockTx] = useState<string>("unknown")
+    const [unlockTx, setUnlockTx] = useState<string>("No Transaction")
     const [unlockToken, setUnlockToken] = useState<string>("")
     const [config, setConfig] = useState<BaseConfig|undefined>(undefined)
 
@@ -45,16 +46,11 @@ const App: React.FC = () => {
                         setLockAmount(parseInt(value))
                     }}
                     sx={{m: 1}}
-                    style={{width: 100}}
+                    style={{width: 200}}
                     id="lock-amount"
+                    label="stake amount"
                 />
-                <TextField
-                    disabled
-                    sx={{m: 1}}
-                    style={{width: 600}}
-                    id="outlined-address"
-                    value={lockTx}
-                />
+                <ActionResult txId={lockTx} />
             </div>
             <div>
                 <Button variant="contained" sx={{m: 2}}
@@ -67,8 +63,9 @@ const App: React.FC = () => {
                         setChargeAmount(parseInt(value))
                     }}
                     sx={{m: 1}}
-                    style={{width: 100}}
+                    style={{width: 200}}
                     id="charge-amount"
+                    label="amount (ERG)"
                 />
                 <TextField
                     onChange={event => {
@@ -78,14 +75,10 @@ const App: React.FC = () => {
                     sx={{m: 1}}
                     style={{width: 600}}
                     id="reserved-token-input"
+                    label="reserved token id"
                 />
-                <TextField
-                    disabled
-                    sx={{m: 1}}
-                    style={{width: 600}}
-                    id="outlined-address"
-                    value={chargeTx}
-                />
+                <ActionResult txId={chargeTx} />
+
             </div>
             <div>
                 <Button variant="contained" sx={{m: 2}}
@@ -100,14 +93,9 @@ const App: React.FC = () => {
                     sx={{m: 1}}
                     style={{width: 600}}
                     id="reserved-token-input2"
+                    label="reserved token id"
                 />
-                <TextField
-                    disabled
-                    sx={{m: 1}}
-                    style={{width: 600}}
-                    id="outlined-address"
-                    value={unlockTx}
-                />
+                <ActionResult txId={unlockTx} />
             </div>
         </Container>
     );

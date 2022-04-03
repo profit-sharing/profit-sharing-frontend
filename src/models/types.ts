@@ -110,6 +110,7 @@ export type ExplorerOutputBox = {
 export type ExplorerTransaction = {
     id: string,
     creationTimestamp: number,
+    numConfirmations: number,
     inputs: ExplorerInputBox[],
     outputs: ExplorerOutputBox[],
 }
