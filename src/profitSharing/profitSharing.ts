@@ -10,14 +10,16 @@ export const lockingTx = async (stake: number, config: BaseConfig): Promise<stri
     const configBox: Box = await ApiNetwork.getConfigBox(config)
     const configBoxInfo: ConfigBox = new ConfigBox(configBox)
     await configBoxInfo.setup()
-    const walletBoxes = await getWalletBoxes({'ERG': (configBoxInfo.minTicketValue + configBoxInfo.fee*2),
-        [config.tokens.staking]: stake})
-    if(!walletBoxes.covered) {
+    const walletBoxes = await getWalletBoxes({
+        'ERG': (configBoxInfo.minTicketValue + configBoxInfo.fee * 2),
+        [config.tokens.staking]: stake
+    })
+    if (!walletBoxes.covered) {
         console.log('[profit-sharing] Not enough fund for locking')
         return "Not enough fund"
     }
     const userAddress = await getWalletAddress()
-    if(userAddress === "Error") {
+    if (userAddress === "Error") {
         console.log('[profit-sharing] Wallet connection failed')
         return "Wallet connection failed"
     }
@@ -26,7 +28,7 @@ export const lockingTx = async (stake: number, config: BaseConfig): Promise<stri
         configBoxInfo,
         (parseInt(configBoxInfo.assets[2].amount) - 1).toString(),
         configBoxInfo.stakeCount + stake,
-        configBoxInfo.ticketCount+1,
+        configBoxInfo.ticketCount + 1,
         config
     )
     const ticketBox: BoxCandidate = await Boxes.getTicketBox(
@@ -38,12 +40,18 @@ export const lockingTx = async (stake: number, config: BaseConfig): Promise<stri
         config
     )
     // TODO: Add name and description to reserved token
+    const name = "ErgoProfitSharing, Reserved Token :" + stake + " stake"
+    const description = "Reserved token, defining" + stake + "stake amount in the ErgoProfitSharing"
     const totalErg = walletBoxes.boxes.map(box => parseInt(box.value)).reduce((a, b) => a + b)
     const changeBox: BoxCandidate = {
-        value: (totalErg - configBoxInfo.minTicketValue - configBoxInfo.fee).toString(),
-        ergoTree: wasm.Address.from_mainnet_str(userAddress).to_ergo_tree().to_base16_bytes(),
-        assets: [{tokenId: configBox.boxId, amount: '1'}].concat(walletBoxes.excess),
-        additionalRegisters: {},
+            value: (totalErg - configBoxInfo.minTicketValue - configBoxInfo.fee).toString(),
+            ergoTree: wasm.Address.from_mainnet_str(userAddress).to_ergo_tree().to_base16_bytes(),
+            assets: [{tokenId: configBox.boxId, amount: '1'}].concat(walletBoxes.excess),
+            additionalRegisters: {
+                'R4': wasm.Constant.from_byte_array(Buffer.from(name)).encode_to_base16(),
+                'R5': wasm.Constant.from_byte_array(Buffer.from(description)).encode_to_base16(),
+                'R6': wasm.Constant.from_byte_array(Buffer.from("0")).encode_to_base16()
+            },
         creationHeight: await ApiNetwork.getHeight()
     }
     const feeBox: BoxCandidate = {
@@ -185,7 +193,6 @@ export const unlockingTx = async (reservedToken: string, config: BaseConfig) => 
         outputs: [outConfigBox, changeBox, feeBox],
         dataInputs: [],
     }
-    console.log(unsigned)
     let txId = await sendTx(unsigned)
     if(txId !== 'Error') console.log("[profit-sharing] Staking tokens unlocked successfully")
     return txId
