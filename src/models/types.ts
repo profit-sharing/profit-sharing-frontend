@@ -70,6 +70,29 @@ export type ExplorerRegister = {
     renderedValue: string
 }
 
+export type ExplorerToken = {
+    tokenId: string;
+    index: number;
+    amount: number;
+    name: string;
+    decimals: number;
+    type: string;
+};
+
+export type ExplorerInputBox = {
+    boxId: string;
+    value: number;
+    outputTransactionId: string;
+    outputBlockId: string,
+    outputIndex: number;
+    creationHeight: number;
+    ergoTree: string;
+    address: string;
+    assets: ExplorerToken[];
+    additionalRegisters: {[key: string]: ExplorerRegister};
+    spentTransactionId: string;
+};
+
 export type ExplorerOutputBox = {
     boxId: string;
     transactionId: string;
@@ -79,8 +102,14 @@ export type ExplorerOutputBox = {
     creationHeight: number;
     ergoTree: string;
     address: string;
-    assets: Token[];
+    assets: ExplorerToken[];
     additionalRegisters: {[key: string]: ExplorerRegister};
     spentTransactionId: string;
-    mainChain: boolean;
 };
+
+export type ExplorerTransaction = {
+    id: string,
+    creationTimestamp: number,
+    inputs: ExplorerInputBox[],
+    outputs: ExplorerOutputBox[],
+}
