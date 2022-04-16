@@ -1,13 +1,21 @@
-import React, {useRef, useEffect, useState} from 'react';
-import TextField from '@mui/material/TextField';
+import React, {useEffect, useState} from 'react';
 import {ApiNetwork} from "../network/Network";
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import Dialog from '@mui/material/Dialog';
+import Button from '@mui/material/Button';
 
 interface txProps {
     txId: string
+    open: boolean
+    name: string
+    onClose: () => void
 }
 
-const ActionResult: React.FC<txProps> = ({ txId }) => {
-    const [status, setStatus] = useState("No result")
+const ActionResult: React.FC<txProps> = ({ txId, open, name, onClose }) => {
+    const [status, setStatus] = useState("")
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -21,26 +29,43 @@ const ActionResult: React.FC<txProps> = ({ txId }) => {
             const confNum = await ApiNetwork.getConfNum(txId)
             console.log(confNum)
             if(confNum === 0){
-                setStatus("your transaction is in mempool")
+                setStatus("Your transaction is in mempool")
             } else if(confNum === -1){
-                setStatus("Please wait more your tx is not considered")
+                setStatus("Please wait more, your tx is not considered yet")
             } else {
-                setStatus("your transaction is mined successfully")
+                setStatus("Your transaction is mined successfully")
                 return 0
             }
             return 1
         }
     }
 
+    const handleClose = () => {
+        onClose()
+    }
+
     return(
-        <TextField
-            disabled
-            sx={{m: 1}}
-            style={{width: 600}}
-            id="outlined-address"
-            multiline
-            value={status +"\n"+ txId}
-        />
+        <Dialog
+            open={open}
+            onClose={onClose}
+            maxWidth="md"
+        >
+            <DialogTitle>Your {name} Tx is in Progress</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    Your transaction is submitted with txId :
+                </DialogContentText>
+                <DialogContentText>
+                    {txId}
+                </DialogContentText>
+                <DialogContentText>
+                    {status}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose}>Close</Button>
+            </DialogActions>
+        </Dialog>
     );
 }
 

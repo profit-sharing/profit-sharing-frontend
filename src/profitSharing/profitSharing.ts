@@ -16,12 +16,12 @@ export const lockingTx = async (stake: number, config: BaseConfig): Promise<stri
     })
     if (!walletBoxes.covered) {
         console.log('[profit-sharing] Not enough fund for locking')
-        return "Not enough fund"
+        return "Error"
     }
     const userAddress = await getWalletAddress()
     if (userAddress === "Error") {
         console.log('[profit-sharing] Wallet connection failed')
-        return "Wallet connection failed"
+        return "Error"
     }
 
     const outConfigBox: BoxCandidate = await Boxes.getConfigBox(
@@ -83,19 +83,19 @@ export const chargingTx = async (reservedToken: string, chargeAmount: number, co
         ticketBox = await ApiNetwork.getTicketBox(reservedToken, config)
     } catch (e){
         console.log(e.info)
-        return "Ticket not found"
+        return "Error"
     }
     const ticketBoxInfo: TicketBox = new TicketBox(ticketBox)
     await ticketBoxInfo.setup()
     const walletBoxes = await getWalletBoxes({'ERG': (chargeAmount + ticketBoxInfo.fee)})
     if(!walletBoxes.covered) {
         console.log('[profit-sharing] Not enough fund for locking')
-        return "Not enough fund"
+        return "Error"
     }
     const changeAddress = await getWalletAddress()
     if(changeAddress === "Error") {
         console.log('[profit-sharing] Wallet connection failed')
-        return "Wallet connection failed"
+        return "Error"
     }
 
     const outTicketBox: BoxCandidate = await Boxes.getTicketBox(
@@ -143,7 +143,7 @@ export const unlockingTx = async (reservedToken: string, config: BaseConfig) => 
         ticketBox = await ApiNetwork.getTicketBox(reservedToken, config)
     } catch (e){
         console.log(e.info)
-        return "Ticket not found"
+        return "Error"
     }
     const ticketBoxInfo: TicketBox = new TicketBox(ticketBox)
     await ticketBoxInfo.setup()
@@ -153,12 +153,12 @@ export const unlockingTx = async (reservedToken: string, config: BaseConfig) => 
     const walletBoxes = await getWalletBoxes({[reservedToken]: 1})
     if(!walletBoxes.covered) {
         console.log('[profit-sharing] Not enough fund for locking')
-        return "Not enough fund"
+        return "Error"
     }
     const changeAddress = await getWalletAddress()
     if(changeAddress === "Error") {
         console.log('[profit-sharing] Wallet connection failed')
-        return "Wallet connection failed"
+        return "Error"
     }
     const outConfigBox: BoxCandidate = await Boxes.getConfigBox(
         configBoxInfo,
