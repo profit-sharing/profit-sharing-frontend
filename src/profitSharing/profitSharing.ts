@@ -39,7 +39,6 @@ export const lockingTx = async (stake: number, config: BaseConfig): Promise<stri
         [configBoxInfo.checkPoint.toString(), configBoxInfo.checkPoint.toString(), configBoxInfo.fee.toString(), configBoxInfo.minBoxVal.toString()],
         config
     )
-    // TODO: Add name and description to reserved token
     const name = "ErgoProfitSharing, Reserved Token :" + stake + " stake"
     const description = "Reserved token, defining" + stake + "stake amount in the ErgoProfitSharing"
     const totalErg = walletBoxes.boxes.map(box => parseInt(box.value)).reduce((a, b) => a + b)

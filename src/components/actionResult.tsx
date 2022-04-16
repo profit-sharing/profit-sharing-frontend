@@ -14,6 +14,13 @@ interface txProps {
     onClose: () => void
 }
 
+/**
+ * Shows the transaction status in the network
+ * @param txId, the transaction id
+ * @param open, when the dialog should appear
+ * @param name, transaction name
+ * @param onClose, what to do when the dialog closes
+ */
 const ActionResult: React.FC<txProps> = ({ txId, open, name, onClose }) => {
     const [status, setStatus] = useState("")
 
