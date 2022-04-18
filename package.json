@@ -25,7 +25,7 @@
   "scripts": {
     "start": "node start.js",
     "build": "react-app-rewired build",
-    "test": "jest",
+    "test": "jest --coverage",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
