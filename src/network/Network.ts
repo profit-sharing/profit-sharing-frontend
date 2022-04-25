@@ -3,18 +3,18 @@ import {Box, ExplorerOutputBox, ExplorerTransaction} from "../models/types";
 import {Boxes} from "../models/Boxes";
 import {BaseConfig, constants} from "../config/configs";
 
-const nodeClient = axios.create({
+export const nodeClient = axios.create({
     baseURL: constants.node,
     timeout: 8000,
     headers: {"Content-Type": "application/json"}
 });
 
-const explorerApi = axios.create({
+export const explorerApi = axios.create({
     baseURL: constants.explorerAPI,
     timeout: 8000
 })
 
-const backEnd = axios.create({
+export const backEnd = axios.create({
     baseURL: constants.backendAPI,
     timeout: 8000,
     headers: {"Content-Type": "application/json"}
@@ -29,7 +29,13 @@ export class ApiNetwork {
      * @return {total, boxes}: The total number of found boxes, and the boxes
      */
     static getBoxWithToken = (token: string, offset: number = 0, limit: number = 100): Promise<{ total: number, boxes: ExplorerOutputBox[]}> => {
-        return explorerApi.get(`/api/v1/boxes/unspent/byTokenId/${token}`).then(res => {
+        return explorerApi.get(`/api/v1/boxes/unspent/byTokenId/${token}`,
+            {
+                params: {
+                    offset: offset,
+                    limit: limit
+                }
+            }).then(res => {
             const data = res.data
             return {
                 boxes: data.items,
@@ -43,8 +49,8 @@ export class ApiNetwork {
      * @param address The required address
      * @return {total, txs} The total number of unconfirmed transactions, and the transactions
      */
-    static getMempoolTransactions = (address: string): Promise<{total: number, txs: ExplorerTransaction}> => {
-        try{return explorerApi.get(`/api/v1/mempool/transactions/byAddress/${address}`).then(res => {
+    static getMempoolTransactions = (address: string): Promise<{total: number, txs: ExplorerTransaction[]}> => {
+        try{ return explorerApi.get(`/api/v1/mempool/transactions/byAddress/${address}`).then(res => {
             const data = res.data
             return {
                 txs: data.items,
@@ -134,11 +140,13 @@ export class ApiNetwork {
         }
         let expBoxes: ExplorerOutputBox[] = []
         let offset = 0
+        let total = 1
         while(expBoxes.length === 0){
-            const output = await ApiNetwork.getBoxWithToken(config.tokens.locking, offset, 100)
-            if(output.total === 0) {
+            if(total <= offset) {
                 throw new Error("[profit-sharing] ticket with specified reserved token not found")
             }
+            const output = await ApiNetwork.getBoxWithToken(config.tokens.locking, offset, 100)
+            total = output.total
             expBoxes = Object.assign(output.boxes).filter(ticketFilter)
             offset += 100
         }
