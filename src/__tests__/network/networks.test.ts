@@ -1,10 +1,8 @@
 import {ApiNetwork} from "../../network/Network";
 import {backEnd, explorerApi, nodeClient} from "../../network/Network";
-import {Boxes} from "../../models/Boxes";
-import {Box, ExplorerOutputBox} from "../../models/types"
+import {ExplorerOutputBox} from "../../models/types"
 import MockAdapter from 'axios-mock-adapter'
 
-const byTokenId = require('../dataset/byTokenId.json');
 const byTokenIdLimit = require('../dataset/byTokenIdLimit.json');
 const backConfig = require('../dataset/backConfig.json')
 const nodeClientInfo = require('../dataset/nodeClientInfo.json')
@@ -33,7 +31,7 @@ mockedExplorer.onGet(`/api/v1/boxes/unspent/byTokenId/${tokenId}`, {params: {off
 mockedExplorer.onGet(`/api/v1/mempool/transactions/byAddress/${mempoolAddress}`).reply(200, mempoolTxs)
 mockedExplorer.onGet(`/api/v0/transactions/unconfirmed/${unconfirmedTxId}`).reply(200, unconfirmedTx)
 mockedExplorer.onGet(`/api/v1/transactions/${unconfirmedTxId}`).reply(404, {"status": 404})
-mockedExplorer.onGet(`/api/v0/transactions/unconfirmed/${unconfirmedTxId}`).reply(404, {"status": 404})
+mockedExplorer.onGet(`/api/v0/transactions/unconfirmed/${confirmedTxId}`).reply(404, {"status": 404})
 mockedExplorer.onGet(`/api/v1/transactions/${confirmedTxId}`).reply(200, confirmedTx)
 mockedExplorer.onGet(`/api/v1/mempool/transactions/byAddress/${unconfirmedReplicatedAddress}`).reply(200, unconfirmedReplicated)
 mockedExplorer.onGet(`/api/v1/boxes/unspent/byTokenId/${backConfig.tokens.locking}`, {params: {offset: 0, limit: 100}}).reply(200, ticketByToken)
@@ -102,6 +100,4 @@ describe("Network APIs", () => {
         expect(data.assets[0].tokenId).toBe(backConfig.tokens.configNFT)
     })
 })
-
-export const x = 0
 
