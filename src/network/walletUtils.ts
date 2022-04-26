@@ -1,14 +1,13 @@
 import {Tx, Box, SignedTx, Token} from "../models/types";
 
-declare namespace ergo{
-    const get_balance: (token_id: string) => Promise<number>;
-    const get_change_address: () => Promise<string>;
-    const get_unused_addresses: () => Promise<Array<string>>;
-    const get_utxos: (amount: string, token_id: string) => Promise<Array<Box>>;
-    const sign_tx: (tx: Tx) => Promise<SignedTx>
-    const submit_tx: (signedTx: SignedTx) => Promise<string>
+export declare namespace ergo{
+    let get_balance: (token_id: string) => Promise<number>;
+    let get_change_address: () => Promise<string>;
+    let get_unused_addresses: () => Promise<Array<string>>;
+    let get_utxos: (amount: string, token_id: string) => Promise<Array<Box>>;
+    let sign_tx: (tx: Tx) => Promise<SignedTx>
+    let submit_tx: (signedTx: SignedTx) => Promise<string>
 }
-
 export const setupWallet = async (): Promise<Boolean> =>{
     if (typeof window.ergo_request_read_access === "undefined") {
         console.log('[profit-sharing] You must install Ergo-wallet dApp Connector to be able to connect to your wallet')

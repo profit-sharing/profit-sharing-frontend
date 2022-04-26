@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
+    "@types/rewire": "^2.5.28",
     "axios-mock-adapter": "^1.20.0",
     "jest": "^27.5.1",
     "react-app-rewired": "2.2.1",

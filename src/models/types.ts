@@ -1,12 +1,9 @@
-import {BaseConfig} from "../config/configs";
-
 export type Register = { [key: string]: string };
 
 declare global {
     interface Window {
         ergo_request_read_access: () => Promise<Boolean>;
         ergo_check_read_access: () => Promise<Boolean>;
-        config: BaseConfig;
     }
 }
 
