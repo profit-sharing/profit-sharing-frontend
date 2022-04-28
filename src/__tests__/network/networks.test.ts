@@ -95,6 +95,7 @@ describe("Network APIs", () => {
     it("Tests config box finding", async () => {
         const spy = jest.spyOn(ApiNetwork, 'findLastMempoolBox').mockImplementation(async (a: ExplorerOutputBox)=> a);
         const data = await ApiNetwork.getConfigBox(backConfig)
+        console.log(JSON.stringify(data))
         expect(spy).toHaveBeenCalled();
         expect(data.assets.length).toBe(3)
         expect(data.assets[0].tokenId).toBe(backConfig.tokens.configNFT)

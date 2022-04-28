@@ -4,7 +4,7 @@ import {ConfigBox,TicketBox} from "../models/models";
 import {Boxes} from "../models/Boxes";
 import {BoxCandidate, Box} from "../models/types";
 import {BaseConfig} from "../config/configs";
-import * as wasm from 'ergo-lib-wasm-browser';
+import * as wasm from 'ergo-lib-wasm-browser/ergo_lib_wasm';
 
 export const lockingTx = async (stake: number, config: BaseConfig): Promise<string> => {
     const configBox: Box = await ApiNetwork.getConfigBox(config)

@@ -1,5 +1,5 @@
 import {Box, Token, Register} from "./types";
-import * as wasm from 'ergo-lib-wasm-browser';
+import * as wasm from 'ergo-lib-wasm-browser/ergo_lib_wasm';
 
 export class BoxImpl implements Box{
     boxId: string;
