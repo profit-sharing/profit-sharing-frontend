@@ -1,3 +1,23 @@
+import { enableFetchMocks } from "jest-fetch-mock";
+import { readFileSync } from "fs";
+
+enableFetchMocks();
+const file = readFileSync("./ergo_lib_wasm_bg.wasm");
+
+fetch.mockResponse(async request => {
+    if (request.url.endsWith("ergo_lib_wasm_bg.wasm")) {
+        return {
+            status: 200,
+            body: file
+        };
+    } else {
+        return {
+            status: 404,
+            body: "Not Found"
+        };
+    }
+});
+
 const ergUtxo = require('./__tests__/dataset/ergUtxo.json');
 const tokenUtxo = require('./__tests__/dataset/tokenUtxo.json');
 const signedTx = require('./__tests__/dataset/signedTx.json');
