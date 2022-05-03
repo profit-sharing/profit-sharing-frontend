@@ -31,6 +31,12 @@ const ActionResult: React.FC<txProps> = ({ txId, open, name, onClose }) => {
         return () => clearInterval(interval);
     }, [txId]);
 
+    /**
+     * Sets the related transaction status:
+     * confirmation count = -1 => transaction is not accepted by the node
+     * confirmation count = 0 => is in mempool
+     * confirmation count > 0 => transaction is mined
+     */
     const updateStatus = async() =>{
         if(txId !== "No Transaction"){
             const confNum = await ApiNetwork.getConfNum(txId)

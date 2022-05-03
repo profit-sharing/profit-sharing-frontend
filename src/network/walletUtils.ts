@@ -10,6 +10,10 @@ export declare namespace ergo{
 }
 
 export class WalletUtils{
+    /**
+     * Setups the integrated wallet
+     * @return false if wallet setup failed and true if setup completed successfully
+     */
     static setupWallet = async (): Promise<Boolean> =>{
         if (typeof window.ergo_request_read_access === "undefined") {
             console.log('[profit-sharing] You must install Ergo-wallet dApp Connector to be able to connect to your wallet')
@@ -28,6 +32,15 @@ export class WalletUtils{
         return false
     }
 
+    /**
+     * Request the needed Erg and tokens from the wallet
+     * @param need
+     *  A dictionary with required tokens and the required amount
+     * @return {boxes, covered, excess}
+     * boxes: The boxes containing the needed tokens
+     * covered: The need has been covered by the boxes?
+     * excess: A dictionary depicting the excess tokens in the returned boxes (rather than the needed)
+     */
     static getWalletBoxes = async (need: { [key: string]: number }): Promise<{boxes: Box[], covered: Boolean, excess: Token[]}> =>{
         let result: Box[] = []
         const keys = Object.keys(need)
@@ -64,6 +77,11 @@ export class WalletUtils{
         }
     }
 
+    /**
+     * Sign and sends an unsigned transaction
+     * @param unsignedTx
+     * @return txId if the transaction have been sent successfully and Error if the sending process failed
+     */
     static sendTx = async (unsignedTx: Tx): Promise<string> => {
         let setup = await WalletUtils.setupWallet()
         if (setup) {
@@ -80,6 +98,10 @@ export class WalletUtils{
         return "Error"
     }
 
+    /**
+     * Returns a related address from the wallet
+     * @return walletAddress if wallet setup was successfully done and Error otherwise
+     */
     static getWalletAddress = async (): Promise<string> => {
         let setup = await WalletUtils.setupWallet()
         if (setup) {
