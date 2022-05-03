@@ -1,32 +1,34 @@
-import {getWalletBoxes, getWalletAddress, sendTx} from "../network/walletUtils";
+import {WalletUtils} from "../network/walletUtils";
 import {ApiNetwork} from "../network/Network";
 import {ConfigBox,TicketBox} from "../models/models";
 import {Boxes} from "../models/Boxes";
 import {BoxCandidate, Box} from "../models/types";
 import {BaseConfig} from "../config/configs";
-import * as wasm from 'ergo-lib-wasm-browser';
+import * as wasm from 'ergo-lib-wasm-browser/ergo_lib_wasm';
 
 export const lockingTx = async (stake: number, config: BaseConfig): Promise<string> => {
     const configBox: Box = await ApiNetwork.getConfigBox(config)
     const configBoxInfo: ConfigBox = new ConfigBox(configBox)
     await configBoxInfo.setup()
-    const walletBoxes = await getWalletBoxes({'ERG': (configBoxInfo.minTicketValue + configBoxInfo.fee*2),
-        [config.tokens.staking]: stake})
-    if(!walletBoxes.covered) {
+    const walletBoxes = await WalletUtils.getWalletBoxes({
+        'ERG': (configBoxInfo.minTicketValue + configBoxInfo.fee * 2),
+        [config.tokens.staking]: stake
+    })
+    if (!walletBoxes.covered) {
         console.log('[profit-sharing] Not enough fund for locking')
-        return "Not enough fund"
+        return "Error"
     }
-    const userAddress = await getWalletAddress()
-    if(userAddress === "Error") {
+    const userAddress = await WalletUtils.getWalletAddress()
+    if (userAddress === "Error") {
         console.log('[profit-sharing] Wallet connection failed')
-        return "Wallet connection failed"
+        return "Error"
     }
 
     const outConfigBox: BoxCandidate = await Boxes.getConfigBox(
         configBoxInfo,
         (parseInt(configBoxInfo.assets[2].amount) - 1).toString(),
         configBoxInfo.stakeCount + stake,
-        configBoxInfo.ticketCount+1,
+        configBoxInfo.ticketCount + 1,
         config
     )
     const ticketBox: BoxCandidate = await Boxes.getTicketBox(
@@ -37,13 +39,18 @@ export const lockingTx = async (stake: number, config: BaseConfig): Promise<stri
         [configBoxInfo.checkPoint.toString(), configBoxInfo.checkPoint.toString(), configBoxInfo.fee.toString(), configBoxInfo.minBoxVal.toString()],
         config
     )
-    // TODO: Add name and description to reserved token
+    const name = "ErgoProfitSharing, Reserved Token :" + stake + " stake"
+    const description = "Reserved token, defining" + stake + "stake amount in the ErgoProfitSharing"
     const totalErg = walletBoxes.boxes.map(box => parseInt(box.value)).reduce((a, b) => a + b)
     const changeBox: BoxCandidate = {
-        value: (totalErg - configBoxInfo.minTicketValue - configBoxInfo.fee).toString(),
-        ergoTree: wasm.Address.from_mainnet_str(userAddress).to_ergo_tree().to_base16_bytes(),
-        assets: [{tokenId: configBox.boxId, amount: '1'}].concat(walletBoxes.excess),
-        additionalRegisters: {},
+            value: (totalErg - configBoxInfo.minTicketValue - configBoxInfo.fee).toString(),
+            ergoTree: wasm.Address.from_mainnet_str(userAddress).to_ergo_tree().to_base16_bytes(),
+            assets: [{tokenId: configBox.boxId, amount: '1'}].concat(walletBoxes.excess),
+            additionalRegisters: {
+                'R4': wasm.Constant.from_byte_array(Buffer.from(name)).encode_to_base16(),
+                'R5': wasm.Constant.from_byte_array(Buffer.from(description)).encode_to_base16(),
+                'R6': wasm.Constant.from_byte_array(Buffer.from("0")).encode_to_base16()
+            },
         creationHeight: await ApiNetwork.getHeight()
     }
     const feeBox: BoxCandidate = {
@@ -64,7 +71,7 @@ export const lockingTx = async (stake: number, config: BaseConfig): Promise<stri
         outputs: [outConfigBox, ticketBox, changeBox, feeBox],
         dataInputs: [],
     }
-    let txId = await sendTx(unsigned)
+    let txId = await WalletUtils.sendTx(unsigned)
     if(txId !== 'Error') console.log("[profit-sharing] Staking tokens locked successfully")
     return txId
 }
@@ -75,19 +82,19 @@ export const chargingTx = async (reservedToken: string, chargeAmount: number, co
         ticketBox = await ApiNetwork.getTicketBox(reservedToken, config)
     } catch (e){
         console.log(e.info)
-        return "Ticket not found"
+        return "Error"
     }
     const ticketBoxInfo: TicketBox = new TicketBox(ticketBox)
     await ticketBoxInfo.setup()
-    const walletBoxes = await getWalletBoxes({'ERG': (chargeAmount + ticketBoxInfo.fee)})
+    const walletBoxes = await WalletUtils.getWalletBoxes({'ERG': (chargeAmount + ticketBoxInfo.fee)})
     if(!walletBoxes.covered) {
         console.log('[profit-sharing] Not enough fund for locking')
-        return "Not enough fund"
+        return "Error"
     }
-    const changeAddress = await getWalletAddress()
+    const changeAddress = await WalletUtils.getWalletAddress()
     if(changeAddress === "Error") {
         console.log('[profit-sharing] Wallet connection failed')
-        return "Wallet connection failed"
+        return "Error"
     }
 
     const outTicketBox: BoxCandidate = await Boxes.getTicketBox(
@@ -124,7 +131,7 @@ export const chargingTx = async (reservedToken: string, chargeAmount: number, co
         outputs: [outTicketBox, changeBox, feeBox],
         dataInputs: [],
     }
-    let txId = await sendTx(unsigned)
+    let txId = await WalletUtils.sendTx(unsigned)
     if(txId !== 'Error') console.log("[profit-sharing] Ticket charged successfully")
     return txId
 }
@@ -135,22 +142,22 @@ export const unlockingTx = async (reservedToken: string, config: BaseConfig) => 
         ticketBox = await ApiNetwork.getTicketBox(reservedToken, config)
     } catch (e){
         console.log(e.info)
-        return "Ticket not found"
+        return "Error"
     }
     const ticketBoxInfo: TicketBox = new TicketBox(ticketBox)
     await ticketBoxInfo.setup()
     const configBox: Box = await ApiNetwork.getConfigBox(config)
     const configBoxInfo: ConfigBox = new ConfigBox(configBox)
     await configBoxInfo.setup()
-    const walletBoxes = await getWalletBoxes({[reservedToken]: 1})
+    const walletBoxes = await WalletUtils.getWalletBoxes({[reservedToken]: 1})
     if(!walletBoxes.covered) {
         console.log('[profit-sharing] Not enough fund for locking')
-        return "Not enough fund"
+        return "Error"
     }
-    const changeAddress = await getWalletAddress()
+    const changeAddress = await WalletUtils.getWalletAddress()
     if(changeAddress === "Error") {
         console.log('[profit-sharing] Wallet connection failed')
-        return "Wallet connection failed"
+        return "Error"
     }
     const outConfigBox: BoxCandidate = await Boxes.getConfigBox(
         configBoxInfo,
@@ -185,8 +192,7 @@ export const unlockingTx = async (reservedToken: string, config: BaseConfig) => 
         outputs: [outConfigBox, changeBox, feeBox],
         dataInputs: [],
     }
-    console.log(unsigned)
-    let txId = await sendTx(unsigned)
+    let txId = await WalletUtils.sendTx(unsigned)
     if(txId !== 'Error') console.log("[profit-sharing] Staking tokens unlocked successfully")
     return txId
 }

@@ -2,7 +2,7 @@ import {Box, BoxCandidate, ExplorerOutputBox, Register} from "./types";
 import {ApiNetwork} from "../network/Network";
 import {ConfigBox} from "./models";
 import {BaseConfig} from "../config/configs";
-import * as wasm from 'ergo-lib-wasm-browser';
+import * as wasm from 'ergo-lib-wasm-browser/ergo_lib_wasm';
 
 export class Boxes {
     static getConfigBox = async (configBox: ConfigBox,
