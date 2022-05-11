@@ -23,13 +23,18 @@ interface txProps {
  */
 const ActionResult: React.FC<txProps> = ({ txId, open, name, onClose }) => {
     const [status, setStatus] = useState("")
+    let intervalId: NodeJS.Timeout
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            updateStatus().then(res => {if(res === 0) clearInterval(interval)})
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [txId]);
+        if(open) {
+            intervalId = setInterval(() => {
+                updateStatus().then(res => {
+                    if (res === 0) clearInterval(intervalId)
+                })
+            }, 1000);
+        }
+        return () => clearInterval(intervalId);
+    }, [open]);
 
     /**
      * Sets the related transaction status:
@@ -54,6 +59,7 @@ const ActionResult: React.FC<txProps> = ({ txId, open, name, onClose }) => {
     }
 
     const handleClose = () => {
+        clearInterval(intervalId)
         onClose()
     }
 
